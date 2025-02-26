@@ -1,5 +1,5 @@
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { DynamoDBDocumentClient, GetCommand, PutCommand, DeleteCommand} = require("@aws-sdk/lib-dynamodb");
+const { DynamoDBDocumentClient, GetCommand, PutCommand, DeleteCommand, ScanCommand} = require("@aws-sdk/lib-dynamodb");
 const express = require("express");
 
 const app = express();
@@ -30,6 +30,17 @@ app.get("/users/:userId", async (req, res) => {
   } catch (error) {
     console.error("Error retrieving user:", error);
     res.status(500).json({ error: "Could not retrieve user" });
+  }
+});
+
+app.get("/users", async (req, res) => {
+  try {
+    const command = new ScanCommand({ TableName: USERS_TABLE });
+    const { Items } = await docClient.send(command);
+    res.json(Items);
+  } catch (error) {
+    console.error("Error retrieving all users:", error);
+    res.status(500).json({ error: "Could not retrieve users" });
   }
 });
 

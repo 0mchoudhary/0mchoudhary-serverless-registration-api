@@ -32,6 +32,10 @@ functions:
           path: users/{userId}
           method: get
           cors: true
+      - http: # GET all users
+          path: users
+          method: get
+          cors: true
       - http: #Delete DELETE request for users
           path: users/{userId}
           method: delete
