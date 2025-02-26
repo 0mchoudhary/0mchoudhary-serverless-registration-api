@@ -1,0 +1,47 @@
+service: registration-form
+
+plugins:
+  - serverless-dotenv-plugin
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  deploymentBucket:
+    name: ${env:DEPLOYMENT_BUCKET}
+  environment:
+    USERS_TABLE: ${env:USERS_TABLE}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:Scan
+        - dynamodb:Query
+      Resource:
+        - "arn:aws:dynamodb:us-east-1:*:table/UsersTable"
+functions:
+  registerUser:
+    handler: handler.handler
+    events:
+      - http: #Register 
+          path: register
+          method: post
+          cors: true
+      - http:  #Add GET request for fetching users
+          path: users/{userId}
+          method: get
+          cors: true
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: UsersTable
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
