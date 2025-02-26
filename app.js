@@ -44,6 +44,26 @@ app.get("/users", async (req, res) => {
   }
 });
 
+app.put("/users/:userId", async (req, res) => {
+  const { userId } = req.params;
+  const { name, email, age, college, batch } = req.body;
+  if (!userId || !name || !email || !age || !college || !batch) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  try {
+    const command = new PutCommand({
+      TableName: USERS_TABLE,
+      Item: { userId, name, email, age, college, batch },
+    });
+    await docClient.send(command);
+    res.status(200).json({ message: "User updated successfully", userId, name, email, age, college, batch });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ error: "Could not update user" });
+  }
+});
+
 app.post("/register", async (req, res) => {
   const { userId, name, email, age, college, batch } = req.body;
   if (!userId || !name || !email || !age || !college || !batch) {
