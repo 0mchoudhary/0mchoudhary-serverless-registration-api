@@ -14,7 +14,7 @@ app.get("/users/:userId", async (req, res) => {
   if (!userId) {
     return res.status(400).json({ error: '"userId" is required' });
   }
-  
+
   try {
     const command = new GetCommand({
       TableName: USERS_TABLE,
@@ -25,42 +25,30 @@ app.get("/users/:userId", async (req, res) => {
     if (Item) {
       res.json(Item);
     } else {
-      res.status(404).json({
-        error: "User not found",
-        message: `No user found with userId: ${userId}. Please check the ID and try again.`,
-      });
+      res.status(404).json({ error: "User not found" });
     }
   } catch (error) {
     console.error("Error retrieving user:", error);
-    res.status(500).json({
-      error: "Could not retrieve user",
-      message: "An internal error occurred while retrieving the user. Please try again later.",
-    });
+    res.status(500).json({ error: "Could not retrieve user" });
   }
 });
 
 app.post("/register", async (req, res) => {
-  const { userId, name } = req.body;
-  if (!userId || typeof userId !== "string") {
-    return res.status(400).json({ error: '"userId" must be a non-empty string' });
-  }
-  if (!name || typeof name !== "string") {
-    return res.status(400).json({ error: '"name" must be a non-empty string' });
+  const { userId, name, email, age, college, batch } = req.body;
+  if (!userId || !name || !email || !age || !college || !batch) {
+    return res.status(400).json({ error: "All fields are required" });
   }
 
   try {
     const command = new PutCommand({
       TableName: USERS_TABLE,
-      Item: { userId, name },
+      Item: { userId, name, email, age, college, batch },
     });
     await docClient.send(command);
-    res.status(201).json({ message: "User created successfully", userId, name });
+    res.status(201).json({ message: "User created successfully", userId, name, email, age, college, batch });
   } catch (error) {
     console.error("Error creating user:", error);
-    res.status(500).json({
-      error: "Could not create user",
-      message: "An internal error occurred while creating the user. Please try again later.",
-    });
+    res.status(500).json({ error: "Could not create user" });
   }
 });
 
