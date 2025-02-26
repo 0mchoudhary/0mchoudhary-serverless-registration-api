@@ -17,6 +17,7 @@ provider:
         - dynamodb:GetItem
         - dynamodb:Scan
         - dynamodb:Query
+        - dynamodb:DeleteItem
       Resource:
         - "arn:aws:dynamodb:us-east-1:*:table/UsersTable"
 functions:
@@ -30,6 +31,10 @@ functions:
       - http:  #Add GET request for fetching users
           path: users/{userId}
           method: get
+          cors: true
+      - http: #Delete DELETE request for users
+          path: users/{userId}
+          method: delete
           cors: true
 resources:
   Resources:

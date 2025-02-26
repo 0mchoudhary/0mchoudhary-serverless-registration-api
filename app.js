@@ -1,5 +1,5 @@
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { DynamoDBDocumentClient, GetCommand, PutCommand } = require("@aws-sdk/lib-dynamodb");
+const { DynamoDBDocumentClient, GetCommand, PutCommand, DeleteCommand} = require("@aws-sdk/lib-dynamodb");
 const express = require("express");
 
 const app = express();
@@ -61,6 +61,25 @@ app.post("/register", async (req, res) => {
       error: "Could not create user",
       message: "An internal error occurred while creating the user. Please try again later.",
     });
+  }
+});
+
+app.delete("/users/:userId", async (req, res) => {
+  const { userId } = req.params;
+  if (!userId) {
+    return res.status(400).json({ error: '"userId" is required' });
+  }
+
+  try {
+    const command = new DeleteCommand({
+      TableName: USERS_TABLE,
+      Key: { userId },
+    });
+    await docClient.send(command);
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "Could not delete user" });
   }
 });
 
